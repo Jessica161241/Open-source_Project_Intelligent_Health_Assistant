@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>OpenHealth MaxKB Demo</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+<style>
+body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
+#container { display:flex; flex-direction:column; height:100vh; }
+#chat { flex:1; background:#fff; padding:10px; overflow-y:auto; border-bottom:1px solid #ccc; }
+#inputBar { display:flex; padding:10px; background:#eee; }
+#inputBar input { flex:1; padding:5px; font-size:16px; }
+#inputBar button { padding:5px 15px; margin-left:10px; font-size:16px; }
+#bottom { display:flex; flex:1; }
+#radar { flex:1; margin:10px; background:#fff; border-radius:8px; padding:10px; }
+#suggestions { flex:1; margin:10px; background:#fff; border-radius:8px; padding:10px; overflow-y:auto; }
+.suggestion { padding:8px; margin-bottom:6px; border-radius:5px; }
+.priority-高 { background:#f8d7da; color:#721c24; }
+.priority-中 { background:#fff3cd; color:#856404; }
+.priority-低 { background:#d1ecf1; color:#0c5460; }
+</style>
+</head>
+<body>
+<div id="container">
+  <div id="chat">
+    <div><b>AI助手:</b> 欢迎使用OpenHealth开源项目智能健康助手！请输入仓库地址。</div>
+  </div>
+  <div id="inputBar">
+    <input type="text" id="repoInput" placeholder="例如：github/user/repo">
+    <button onclick="analyzeRepo()">分析</button>
+  </div>
+  <div id="bottom">
+    <div id="radar"></div>
+    <div id="suggestions"><h3>改进建议</h3></div>
+  </div>
+</div>
+
+<script>
+async function analyzeRepo() {
+  const repo = document.getElementById('repoInput').value || 'github/user/repo';
+  const chat = document.getElementById('chat');
+  chat.innerHTML += `<div><b>用户:</b> ${repo}</div>`;
+
+  try {
+    const resp = await fetch('/analyze', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({repo})
+    });
+    const data = await resp.json();
+
+    chat.innerHTML += `<div><b>AI助手:</b> ${data.response}</div>`;
+
+    // 雷达图
+    const radarChart = echarts.init(document.getElementById('radar'));
+    radarChart.setOption({
+      title: { text: '仓库健康雷达图', left:'center' },
+      tooltip: {},
+      radar: {
+        indicator: Object.keys(data.radar).map(k=>({name:k,max:100}))
+      },
+      series:[{ type:'radar', data:[{value:Object.values(data.radar), name:'健康评分'}] }]
+    });
+
+    // 建议
+    const sugDiv = document.getElementById('suggestions');
+    sugDiv.innerHTML = '<h3>改进建议</h3>';
+    data.suggestions.forEach(s=>{
+      sugDiv.innerHTML += `<div class="suggestion priority-${s.priority}">[${s.priority}] ${s.text}</div>`;
+    });
+
+    chat.scrollTop = chat.scrollHeight;
+  } catch(e) {
+    chat.innerHTML += `<div style="color:red;"><b>错误:</b> ${e}</div>`;
+  }
+}
+</script>
+</body>
+</html>

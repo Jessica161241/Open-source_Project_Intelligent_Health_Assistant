@@ -1,0 +1,7 @@
+2020_01_log	2020年一月份的日志数据	
+OSS下载地址：https://oss.x-lab.info/openSODA_dataset/log_2020_01.7z
+百度网盘下载地址：https://pan.baidu.com/s/1lTDRDdfU9tw1m_qsg1GWng?pwd=7ihz 提取码: 7ihz 
+
+top300_log	前300流行项目2020年1月份-2023年3月份日志记录数据	
+OSS下载地址：https://oss.x-lab.info/openSODA_dataset/top300_20_23.7z
+百度网盘下载地址： https://pan.baidu.com/s/1-2DPUp9AWK1GMUXD7kbYkw?pwd=th7s 提取码: th7s  
